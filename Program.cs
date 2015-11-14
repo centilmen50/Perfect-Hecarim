@@ -23,6 +23,8 @@ namespace PerfectHecarim
         static Item Healthpot;
         static Item Manapot;
         static Item CrystalFlask;
+        static Item CorruptingPotion;
+        static Item RefillablePotion;
 
         static void Main(string[] args)
         {
@@ -46,6 +48,9 @@ namespace PerfectHecarim
             Healthpot = new Item(2003, 0);
             Manapot = new Item(2004, 0);
             CrystalFlask = new Item(2041, 0);
+            CorruptingPotion = new Item(2033, 0);
+            RefillablePotion = new Item(2031, 0);
+
             uint level = (uint)Player.Instance.Level;
             Q = new Spell.Active(SpellSlot.Q, 350);
             W = new Spell.Active(SpellSlot.W, 525);
@@ -63,6 +68,7 @@ namespace PerfectHecarim
             ComboMenu.Add("WCombo", new CheckBox("Use W"));
             ComboMenu.Add("ECombo", new CheckBox("Use E"));
             ComboMenu.Add("RCombo", new CheckBox("Use R"));
+            ComboMenu.Add("rCount", new Slider("R Count ", 3, 1, 5));
             ComboMenu.Add("useTiamat", new CheckBox("Use Items"));
 
             HarassMenu = Menu.AddSubMenu("Harass Settings", "HarassSettings");
@@ -114,7 +120,7 @@ namespace PerfectHecarim
             MiscMenu.Add("useHPV", new Slider("HP < %", 45, 0, 100));
             MiscMenu.Add("useMana", new CheckBox("Use Mana Potion"));
             MiscMenu.Add("useManaV", new Slider("Mana < %", 45, 0, 100));
-            MiscMenu.Add("useCrystal", new CheckBox("Use Crystal Flask"));
+            MiscMenu.Add("useCrystal", new CheckBox("Use New Potions"));
             MiscMenu.Add("useCrystalHPV", new Slider("HP < %", 45, 0, 100));
             MiscMenu.Add("useCrystalManaV", new Slider("Mana < %", 45, 0, 100));
 
@@ -125,8 +131,10 @@ namespace PerfectHecarim
             DrawMenu.Add("drawR", new CheckBox("Draw R Range"));
 
             UpdateMenu = Menu.AddSubMenu("Last Update Logs", "Updates");
-            UpdateMenu.AddLabel("V0.0.1");
-            UpdateMenu.AddLabel("-Shared");
+            UpdateMenu.AddLabel("V0.0.2");
+            UpdateMenu.AddLabel("-LaneClear Fixed");
+            UpdateMenu.AddLabel("-ComboMenu R Count Added");
+            UpdateMenu.AddLabel("-New Items Added");
 
             Game.OnTick += Game_OnTick;
             Drawing.OnDraw += Drawing_OnDraw;
@@ -155,22 +163,23 @@ namespace PerfectHecarim
                     Healthpot.Cast();
                 }
             }
-
-            if (Mpot && Player.Instance.ManaPercent < Manav)
-            {
-                if (Item.HasItem(Manapot.Id) && Item.CanUseItem(Manapot.Id) && !Player.HasBuff("FlaskOfCrystalWater") && !Player.HasBuff("ItemCrystalFlask"))
-                {
-                    Manapot.Cast();
-                }
-            }
             
             if (Crystal && Player.Instance.HealthPercent < CrystalHPv || Crystal && Player.Instance.ManaPercent < CrystalManav)
             {
-                if (Item.HasItem(CrystalFlask.Id) && Item.CanUseItem(CrystalFlask.Id) && !Player.HasBuff("RegenerationPotion") && !Player.HasBuff("FlaskOfCrystalWater") && !Player.HasBuff("ItemCrystalFlask"))
+                if (Item.HasItem(CorruptingPotion.Id) && Item.CanUseItem(CorruptingPotion.Id) && !Player.HasBuff("RegenerationPotion") && !Player.HasBuff("FlaskOfCrystalWater") && !Player.HasBuff("ItemCrystalFlask"))
                 {
-                    CrystalFlask.Cast();
+                    CorruptingPotion.Cast();
                 }
                
+            }
+
+            if (Crystal && Player.Instance.HealthPercent < CrystalHPv || Crystal && Player.Instance.ManaPercent < CrystalManav)
+            {
+                if (Item.HasItem(RefillablePotion.Id) && Item.CanUseItem(RefillablePotion.Id) && !Player.HasBuff("RegenerationPotion") && !Player.HasBuff("FlaskOfCrystalWater") && !Player.HasBuff("ItemCrystalFlask"))
+                {
+                    RefillablePotion.Cast();
+                }
+
             }
 
             if (useItem && target.IsValidTarget(400) && !target.IsDead && !target.IsZombie && target.HealthPercent < 100)
@@ -207,6 +216,7 @@ namespace PerfectHecarim
             var useE = ComboMenu["ECombo"].Cast<CheckBox>().CurrentValue;
             var useR = ComboMenu["RCombo"].Cast<CheckBox>().CurrentValue;
             var useItem = ComboMenu["useTiamat"].Cast<CheckBox>().CurrentValue;
+            var rCount = ComboMenu["rCount"].Cast<Slider>().CurrentValue;
 
             if (W.IsReady() && useW && target.IsValidTarget(W.Range) && !target.IsDead && !target.IsZombie)
             {
@@ -219,25 +229,14 @@ namespace PerfectHecarim
             if (useQ && Q.IsReady() && target.IsValidTarget(Q.Range) && !target.IsDead && !target.IsZombie)
             {
                 Q.Cast();
-            }          
-            if (R.IsReady() && useR && target.IsValidTarget(R.Range) && !target.IsDead && !target.IsZombie)
+            }
+            foreach (AIHeroClient enemie in EntityManager.Heroes.Enemies)
             {
-                if (target.Hero == Champion.Caitlyn ||
-                    target.Hero == Champion.Ashe ||
-                    target.Hero == Champion.Corki ||
-                    target.Hero == Champion.Draven ||
-                    target.Hero == Champion.Ezreal ||
-                    target.Hero == Champion.Graves ||
-                    target.Hero == Champion.Janna ||
-                    target.Hero == Champion.Jinx ||
-                    target.Hero == Champion.Kalista ||
-                    target.Hero == Champion.Katarina ||
-                    target.Hero == Champion.Kennen ||
-                    target.Hero == Champion.KogMaw ||
-                    target.Hero == Champion.Lucian)
+                if (R.IsReady() && useR && EntityManager.Heroes.Enemies.Where(enemy => enemy != _Player && enemy.Distance(_Player) <= 1000).Count() > rCount && !target.IsDead && !target.IsZombie)
                 {
-                    R.Cast(target);
+                    R.Cast(enemie);
                 }
+                
             }
             if (useItem && target.IsValidTarget(400) && !target.IsDead && !target.IsZombie)
             {
@@ -312,11 +311,11 @@ namespace PerfectHecarim
             var minions = ObjectManager.Get<Obj_AI_Base>().OrderBy(m => m.Health).Where(m => m.IsMinion && m.IsEnemy && !m.IsDead);
             foreach (var minion in minions)
             {
-                if (useQ && Q.IsReady() && minion.IsValidTarget(Q.Range) && Player.Instance.ManaPercent > Qmana && minion.Health > _Player.GetSpellDamage(minion, SpellSlot.Q))
+                if (useQ && Q.IsReady() && minion.IsValidTarget(Q.Range) && Player.Instance.ManaPercent > Qmana && minion.Health > _Player.GetSpellDamage(minion, SpellSlot.Q) && minions.Count() >= 2)
                 {
                     Q.Cast();
                 }
-                if (useW && W.IsReady() && Player.Instance.ManaPercent > Wmana && minion.IsValidTarget(W.Range) && Player.Instance.HealthPercent < 50)
+                if (useW && W.IsReady() && Player.Instance.ManaPercent > Wmana && minion.IsValidTarget(W.Range) && Player.Instance.HealthPercent < 50 && minions.Count() >= 2)
                 {
                     W.Cast();
                 }
@@ -329,7 +328,7 @@ namespace PerfectHecarim
             var minions = ObjectManager.Get<Obj_AI_Base>().OrderBy(m => m.Health).Where(m => m.IsMinion && m.IsEnemy && !m.IsDead);
             foreach (var minion in minions)
             {
-                if (useQ && Q.IsReady() && !minion.IsValidTarget(E.Range) && minion.IsValidTarget(Q.Range) && Player.Instance.ManaPercent > mana && minion.Health < _Player.GetSpellDamage(minion, SpellSlot.Q))
+                if (useQ && Q.IsReady() && minion.IsValidTarget(Q.Range) && Player.Instance.ManaPercent > mana && minion.Health < _Player.GetSpellDamage(minion, SpellSlot.Q))
                 {
                     Q.Cast();
                 }
