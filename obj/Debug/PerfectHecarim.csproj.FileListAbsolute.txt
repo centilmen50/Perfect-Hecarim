@@ -1,0 +1,10 @@
+C:\Users\Mertss\Desktop\My Addons\Perfect Hecarim\bin\Debug\PerfectHecarim.exe.config
+C:\Users\Mertss\Desktop\My Addons\Perfect Hecarim\bin\Debug\PerfectHecarim.exe
+C:\Users\Mertss\Desktop\My Addons\Perfect Hecarim\bin\Debug\PerfectHecarim.pdb
+C:\Users\Mertss\Desktop\My Addons\Perfect Hecarim\bin\Debug\EloBuddy.dll
+C:\Users\Mertss\Desktop\My Addons\Perfect Hecarim\bin\Debug\EloBuddy.SDK.dll
+C:\Users\Mertss\Desktop\My Addons\Perfect Hecarim\bin\Debug\SharpDX.dll
+C:\Users\Mertss\Desktop\My Addons\Perfect Hecarim\bin\Debug\SharpDX.Direct3D9.dll
+C:\Users\Mertss\Desktop\My Addons\Perfect Hecarim\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Mertss\Desktop\My Addons\Perfect Hecarim\obj\Debug\PerfectHecarim.exe
+C:\Users\Mertss\Desktop\My Addons\Perfect Hecarim\obj\Debug\PerfectHecarim.pdb
