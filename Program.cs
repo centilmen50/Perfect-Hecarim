@@ -82,8 +82,14 @@ namespace PerfectHecarim
             FarmingMenu.Add("QlaneclearMana", new Slider("Mana < %", 45, 0, 100));
             FarmingMenu.Add("WLaneClear", new CheckBox("Use W LaneClear"));
             FarmingMenu.Add("WlaneclearMana", new Slider("Mana < %", 45, 0, 100));
-            FarmingMenu.AddLabel("I'm working on the Jungle Clear.");
-            FarmingMenu.AddLabel("Ending Soon!");
+
+            FarmingMenu.AddLabel("Jungle Clear");
+            FarmingMenu.Add("Qjungle", new CheckBox("Use Q in Jungle"));
+            FarmingMenu.Add("QjungleMana", new Slider("Mana < %", 45, 0, 100));
+            FarmingMenu.Add("Wjungle", new CheckBox("Use W in Jungle"));
+            FarmingMenu.Add("WjungleMana", new Slider("Mana < %", 45, 0, 100));
+            FarmingMenu.Add("Ejungle", new CheckBox("Use E in Jungle"));
+            FarmingMenu.Add("EjungleMana", new Slider("Mana < %", 70, 0, 100));
 
             FarmingMenu.AddLabel("Last Hit Settings");
             FarmingMenu.Add("Qlasthit", new CheckBox("Use Q LastHit"));
@@ -131,10 +137,8 @@ namespace PerfectHecarim
             DrawMenu.Add("drawR", new CheckBox("Draw R Range"));
 
             UpdateMenu = Menu.AddSubMenu("Last Update Logs", "Updates");
-            UpdateMenu.AddLabel("V0.0.2");
-            UpdateMenu.AddLabel("-LaneClear Fixed");
-            UpdateMenu.AddLabel("-ComboMenu R Count Added");
-            UpdateMenu.AddLabel("-New Items Added");
+            UpdateMenu.AddLabel("V0.0.3");
+            UpdateMenu.AddLabel("-Jungle Clear Added!");
 
             Game.OnTick += Game_OnTick;
             Drawing.OnDraw += Drawing_OnDraw;
@@ -204,10 +208,41 @@ namespace PerfectHecarim
             {
                 LastHit();
             }
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
+            {
+                JungleClear();
+            }
             KillSteal();
             
 
         }
+        private static void JungleClear()
+        {
+            var useQ = FarmingMenu["Qjungle"].Cast<CheckBox>().CurrentValue;
+            var useQMana = FarmingMenu["QjungleMana"].Cast<Slider>().CurrentValue;
+            var useW = FarmingMenu["Wjungle"].Cast<CheckBox>().CurrentValue;
+            var useWMana = FarmingMenu["WjungleMana"].Cast<Slider>().CurrentValue;
+            var useE = FarmingMenu["Ejungle"].Cast<CheckBox>().CurrentValue;
+            var useEMana = FarmingMenu["EjungleMana"].Cast<Slider>().CurrentValue;
+            foreach (var monster in EntityManager.MinionsAndMonsters.Monsters)
+            {
+                if (useQ && Q.IsReady() && Player.Instance.ManaPercent > useQMana)
+                {
+                    Q.Cast();
+                }
+                if (useW && W.IsReady() && Player.Instance.ManaPercent > useWMana && Player.Instance.HealthPercent < 70)
+                {
+                    W.Cast();
+                }
+                if (useE && E.IsReady() && Player.Instance.HealthPercent > useEMana)
+                {
+                    E.Cast();
+                }
+
+                HandleItems();
+            }
+        }
+
         private static void Combo()
         {
             var target = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
