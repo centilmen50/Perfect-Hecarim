@@ -212,9 +212,18 @@ namespace PerfectHecarim
             {
                 JungleClear();
             }
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee))
+            {
+                Flee();
+            }
             KillSteal();
             
 
+        }
+
+        private static void Flee()
+        {
+            E.Cast();
         }
         private static void JungleClear()
         {
@@ -257,7 +266,7 @@ namespace PerfectHecarim
             {
                 W.Cast();
             }
-            if (E.IsReady() && useE && target.IsValidTarget(E.Range) && !target.IsDead && !target.IsZombie)
+            if (E.IsReady() && useE && target.IsValidTarget(800) && !target.IsDead && !target.IsZombie)
             {
                 E.Cast();
             }
@@ -346,7 +355,7 @@ namespace PerfectHecarim
             var minions = ObjectManager.Get<Obj_AI_Base>().OrderBy(m => m.Health).Where(m => m.IsMinion && m.IsEnemy && !m.IsDead);
             foreach (var minion in minions)
             {
-                if (useQ && Q.IsReady() && minion.IsValidTarget(Q.Range) && Player.Instance.ManaPercent > Qmana && minion.Health > _Player.GetSpellDamage(minion, SpellSlot.Q) && minions.Count() >= 2)
+                if (useQ && Q.IsReady() && minion.IsValidTarget(Q.Range) && Player.Instance.ManaPercent > Qmana && minion.Health > _Player.GetSpellDamage(minion, SpellSlot.Q) && minions.Count() >= 3)
                 {
                     Q.Cast();
                 }
