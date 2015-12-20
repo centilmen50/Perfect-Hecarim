@@ -19,7 +19,7 @@ namespace PerfectHecarim
         public static Spell.Active W;
         public static Spell.Active E;
         public static Spell.Skillshot R;
-        public static Menu Menu, SkillMenu, FarmingMenu, MiscMenu, DrawMenu, HarassMenu, ComboMenu, SmiteMenu, UpdateMenu;
+        public static Menu Menu, SkillMenu, FarmingMenu, MiscMenu, DrawMenu, HarassMenu, ComboMenu, SmiteMenu, UpdateMenu, Skin;
         static Item Healthpot;
         static Item Manapot;
         static Item CrystalFlask;
@@ -130,6 +130,10 @@ namespace PerfectHecarim
             MiscMenu.Add("useCrystalHPV", new Slider("HP < %", 45, 0, 100));
             MiscMenu.Add("useCrystalManaV", new Slider("Mana < %", 45, 0, 100));
 
+            Skin = Menu.AddSubMenu("Skin Changer", "SkinChange");
+            Skin.Add("checkSkin", new CheckBox("Use Skin Changer"));
+            Skin.Add("skin.Id", new Slider("Skin", 3, 0, 5));
+
             DrawMenu = Menu.AddSubMenu("Draw Settings", "Drawings");
             DrawMenu.Add("drawAA", new CheckBox("Draw AA Range"));
             DrawMenu.Add("drawQ", new CheckBox("Draw Q Range"));
@@ -142,6 +146,7 @@ namespace PerfectHecarim
 
             Game.OnTick += Game_OnTick;
             Drawing.OnDraw += Drawing_OnDraw;
+            Game.OnUpdate += OnGameUpdate;
 
             Chat.Print("Perrrrrrrrrfect Addon", System.Drawing.Color.Red);
         }
@@ -221,9 +226,25 @@ namespace PerfectHecarim
 
         }
 
+        private static void OnGameUpdate(EventArgs args)
+        {
+            if (checkSkin())
+            {
+                Player.SetSkinId(SkinId());
+            }
+        }
+
         private static void Flee()
         {
             E.Cast();
+        }
+        public static int SkinId()
+        {
+            return Skin["skin.Id"].Cast<Slider>().CurrentValue;
+        }
+        public static bool checkSkin()
+        {
+            return Skin["checkSkin"].Cast<CheckBox>().CurrentValue;
         }
         private static void JungleClear()
         {
