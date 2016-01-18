@@ -297,7 +297,7 @@ namespace PerfectHecarim
             }
             foreach (AIHeroClient enemie in EntityManager.Heroes.Enemies)
             {
-                if (R.IsReady() && useR && EntityManager.Heroes.Enemies.Where(enemy => enemy != _Player && enemy.Distance(_Player) <= 1000).Count() > rCount && !target.IsDead && !target.IsZombie)
+                if (R.IsReady() && useR && EntityManager.Heroes.Enemies.Where(enemy => enemy != _Player && enemy.Distance(_Player) <= 1000).Count() >= rCount && !enemie.IsDead && !enemie.IsZombie)
                 {
                     R.Cast(enemie);
                 }
